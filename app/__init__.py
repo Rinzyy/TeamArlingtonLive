@@ -7,6 +7,15 @@ from app.approvals.routes import approvals_bp
 from app.models import db, FormTemplate
 from app.utils.forms_config import FORM_TEMPLATES
 
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+TENANT_ID = os.getenv("TENANT_ID")
+
+MOCK_MODE = not all([CLIENT_ID, CLIENT_SECRET, TENANT_ID])
+
+if MOCK_MODE:
+    print(" Running in DEMO MODE: Microsoft login is disabled.")
+
 def seed_form_templates():
     """Insert form templates if they don't exist yet."""
     for f in FORM_TEMPLATES:

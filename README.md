@@ -120,3 +120,15 @@ After you log in, Flask remembers you so you don't have to log in on every page.
   - Windows: install MiKTeX.
 - The folder `latex_templates/` is created at runtime if missing.
 - On first PDF generation, a `Makefile` is written automatically with a pattern rule to compile `.tex` to `.pdf` using `pdflatex`.
+
+
+## Note for TAs
+This project uses Microsoft 365 OAuth for authentication.
+Since you may not have access to our registered Azure credentials, the login feature may not fully work.
+However, the rest of the application and its routes can still be accessed and tested through Docker.
+
+How to run in Docker:
+
+docker build -t teamarlington-app .
+docker run -p 5001:5001 teamarlington-app
+
