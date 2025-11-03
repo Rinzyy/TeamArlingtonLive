@@ -6,10 +6,36 @@ from flask import (
 )
 from sqlalchemy import func
 from app.models import db, User
+import os
 
 users_bp = Blueprint("users_bp", __name__)
 
-# ----------------- Helpers & Decorators -----------------
+# ------------- ADMIN CONFIG -----------------
+ADMIN_EMAILS = {e.strip().lower() for e in (os.getenv("ADMIN_EMAILS") or "").split(",")}
+
+def is_session_admin():
+    info = session.get("user") or {}
+    email = (info.get("email") or info.get("preferred_username") or "").lower()
+    session_roles = [r.lower() for r in session.get("roles", [])]
+    session_role = (session.get("role") or "").lower()
+    return (
+        session_role == "admin"
+        or "admin" in session_roles
+        or (email and email in ADMIN_EMAILS)
+    )
+
+def require_admin(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("auth.login"))
+        me = current_db_user()
+        if me and me.status == "active" and (me.role or "").lower() == "admin":
+            return f(*args, **kwargs)
+        if is_session_admin():
+            return f(*args, **kwargs)
+        return jsonify({"error": "Forbidden (admin only)"}), 403
+    return wrapper
 
 def current_db_user():
     """Return the DB user row for the currently signed-in O365 user (or None)."""
@@ -27,17 +53,6 @@ def require_login(f):
         if "user" not in session:
             # Adjust endpoint if your login view function name differs
             return redirect(url_for("auth.login"))
-        return f(*args, **kwargs)
-    return wrapper
-
-def require_admin(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if "user" not in session:
-            return redirect(url_for("auth.login"))
-        me = current_db_user()
-        if not me or me.status != "active" or me.role != "admin":
-            return jsonify({"error": "Forbidden (admin only)"}), 403
         return f(*args, **kwargs)
     return wrapper
 
