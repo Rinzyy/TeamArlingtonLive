@@ -1,130 +1,69 @@
+% uh_general_petition_single_approver.tex
 \documentclass[11pt]{article}
-\usepackage[margin=0.75in]{geometry}
-\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
 \usepackage{array}
 \usepackage{tabularx}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{fancyhdr}
-\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
 
-% Header and footer
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{2pt}
-\renewcommand{\footrulewidth}{1pt}
-\lhead{\textbf{University of Houston}}
-\rhead{\textbf{General Petition}}
-\cfoot{\thepage}
+\newcommand{\checkbox}{\(\square\)}
 
 \begin{document}
 
-% Title Section
 \begin{center}
-    {\LARGE \textbf{GENERAL PETITION FORM}} \\[0.3cm]
-    {\large Office of the University Registrar} \\[0.2cm]
-    \textit{Student Academic Petition}
+  {\LARGE \textbf{UNIVERSITY OF HOUSTON}}\\[4pt]
+  \textbf{Registration and Academic Records}\\[6pt]
+  {\Large \textbf{GENERAL PETITION}}\\[6pt]
+  \normalsize (Use this form to petition for registration/academic record actions)\\[10pt]
 \end{center}
 
-\vspace{0.5cm}
-
-% Student Information Section
-\noindent\textbf{\large Student Information}
-\vspace{0.2cm}
-
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Student Name:} & {{STUDENT_NAME}} \\
-\hline
-\textbf{Student ID:} & {{STUDENT_ID}} \\
-\hline
-\textbf{Phone Number:} & {{PHONE_NUMBER}} \\
-\hline
-\textbf{Email:} & {{EMAIL}} \\
-\hline
+\section*{Student Information}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+  \textbf{Name:} & {{STUDENT_NAME}} \\
+  \textbf{Student ID:} & {{STUDENT_ID}} \\
+  \textbf{Phone:} & {{PHONE_NUMBER}} \\
+  \textbf{Email:} & {{EMAIL}} \\
+  \textbf{Mailing Address:} & {{MAILING_ADDRESS}} \\
+  \textbf{City / State / ZIP:} & {{CITY}}, {{STATE}} {{ZIP}}
 \end{tabularx}
 
-\vspace{0.3cm}
+\vspace{8pt}
 
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Mailing Address:} & {{MAILING_ADDRESS}} \\
-\hline
-\textbf{City:} & {{CITY}} \\
-\hline
-\textbf{State:} & {{STATE}} \\
-\hline
-\textbf{ZIP Code:} & {{ZIP}} \\
-\hline
+\section*{Petition Details}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+  \textbf{Petition Reason:} & {{PETITION_REASON_NUMBER}} \\
+  \textbf{Date:} & {{DATE}}
 \end{tabularx}
 
-\vspace{0.5cm}
+\vspace{8pt}
 
-% Petition Details
-\noindent\textbf{\large Petition Details}
-\vspace{0.2cm}
-
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Petition Reason:} & {{PETITION_REASON_NUMBER}} \\
-\hline
-\textbf{Date:} & {{DATE}} \\
-\hline
-\end{tabularx}
-
-\vspace{0.5cm}
-
-% Change Details (if applicable)
 {{CHANGE_DETAILS}}
 
-\vspace{0.5cm}
-
-% Explanation Section
-\noindent\textbf{\large Explanation of Request}
-\vspace{0.2cm}
-
+\vspace{8pt}
+\section*{Explanation of Request}
 \noindent
 \fbox{\begin{minipage}{0.95\textwidth}
 {{EXPLANATION_OF_REQUEST}}
 \end{minipage}}
 
-\vspace{0.8cm}
+\vspace{12pt}
 
-% Signature Section
-\noindent\textbf{\large Student Signature}
-\vspace{0.3cm}
+\noindent \textbf{Student Signature:}\\[6pt]
+{{STUDENT_SIGNATURE}}\\[6pt]
+\textbf{Date Submitted:} {{SUBMITTED_DATE}}
 
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Signature:} & \\
-& {{STUDENT_SIGNATURE}} \\
-& \\
-\hline
-\textbf{Date Submitted:} & {{SUBMITTED_DATE}} \\
-\hline
-\end{tabularx}
+\vspace{12pt}
+\section*{Approver Signature}
+\noindent Official approval by authorized university personnel.
 
-\vspace{0.5cm}
-
-% Approval Section
-\noindent\textbf{\large Approval Chain}
-\vspace{0.3cm}
-
+\vspace{8pt}
 {{APPROVER_SIGNATURES}}
 
-\vspace{1cm}
-
-% Footer Notice
-\noindent
-\fbox{\begin{minipage}{0.95\textwidth}
-\small
-\textbf{For Office Use Only:} \\
-This petition has been reviewed and processed according to University policies and procedures. 
-All changes will be reflected in the student's academic record upon final approval.
-\end{minipage}}
+\vfill
+\noindent \small\textbf{Notes:} Attach supporting documents where required. Retain a copy for your records.
 
 \end{document}

@@ -205,13 +205,15 @@ def _build_ferpa_replacements(form_data: Dict[str, Any], submitter_name: str,
     else:
         replacements["STUDENT_SIGNATURE"] = "\\textit{[No signature]}"
     
-    # Approver signatures
+    # Approver signatures - simplified for single approver
     if len(signature_paths) > 1:
-        approver_sigs = []
-        for i, sig_path in enumerate(signature_paths[1:], 1):
-            sig_img = _render_signature_image(sig_path, latex_dir)
-            approver_sigs.append(f"\\noindent\\textbf{{Approver {i}:}} \\\\ {sig_img} \\\\[0.3cm]")
-        replacements["APPROVER_SIGNATURES"] = "\n".join(approver_sigs)
+        # Just show the first approver signature (simplified for demo)
+        sig_img = _render_signature_image(signature_paths[1], latex_dir)
+        replacements["APPROVER_SIGNATURES"] = (
+            f"\\noindent\\textbf{{Approved by:}}\\\\[6pt]\n"
+            f"{sig_img}\\\\[6pt]\n"
+            f"\\textbf{{Status:}} Approved\n"
+        )
     else:
         replacements["APPROVER_SIGNATURES"] = "\\textit{Pending approval}"
     
@@ -262,21 +264,15 @@ def _build_petition_replacements(form_data: Dict[str, Any], submitter_name: str,
     else:
         replacements["STUDENT_SIGNATURE"] = "\\textit{[No signature]}"
     
-    # Approver signatures
+    # Approver signatures - simplified for single approver
     if len(signature_paths) > 1:
-        approver_sigs = []
-        for i, sig_path in enumerate(signature_paths[1:], 1):
-            sig_img = _render_signature_image(sig_path, latex_dir)
-            approver_sigs.append(
-                f"\\noindent\\begin{{tabularx}}{{\\textwidth}}{{|l|X|}}\n"
-                f"\\hline\n"
-                f"\\textbf{{Approver {i}:}} & \\\\\n"
-                f"& {sig_img} \\\\\n"
-                f"& \\\\\n"
-                f"\\hline\n"
-                f"\\end{{tabularx}}\\\\[0.3cm]"
-            )
-        replacements["APPROVER_SIGNATURES"] = "\n".join(approver_sigs)
+        # Just show the first approver signature (simplified for demo)
+        sig_img = _render_signature_image(signature_paths[1], latex_dir)
+        replacements["APPROVER_SIGNATURES"] = (
+            f"\\noindent\\textbf{{Approved by:}}\\\\[6pt]\n"
+            f"{sig_img}\\\\[6pt]\n"
+            f"\\textbf{{Status:}} Approved\n"
+        )
     else:
         replacements["APPROVER_SIGNATURES"] = "\\textit{Pending approval}"
     

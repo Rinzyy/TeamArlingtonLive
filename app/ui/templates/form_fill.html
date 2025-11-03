@@ -1,114 +1,184 @@
 {% extends "base.html" %}
 
-{% block title %}Fill Form{% endblock %}
+{% block title %}{{ form_template.name }}{% endblock %}
 
 {% block content %}
-<h2>{{ form_template.name }}</h2>
-
-<div style="background-color: #f0f8ff; padding: 10px; margin-bottom: 15px; border-left: 4px solid #007bff;">
-  <strong>Note:</strong> Your stored signature will be used when you submit this form. 
-  If you haven't uploaded a signature yet, please <a href="{{ url_for('approvals_bp.signature_upload_get') }}">upload one here</a>.
-</div>
-
-<form method="POST" enctype="multipart/form-data" 
-      action="{{ url_for('approvals_bp.edit_request', request_id=req.id) if current_data else url_for('approvals_bp.submit_request', form_code=form_template.form_code) }}">
-
-
-  {% for key, field in form_template.fields_json.items() %}
-    {% if key not in ["from_value", "to_value", "additional_details", "signature"] %}
-      <div class="form-group" style="margin-bottom: 10px;">
-        <label>{{ key.replace('_', ' ').title() }}:</label>
-
-        {# Select dropdown #}
-        {% if field is mapping and field.type == "select" %}
-          <select name="{{ key }}" id="{{ key }}">
-            {% for option in field.options %}
-              <option value="{{ option }}" {% if current_data and key in current_data and current_data[key] == option %}selected{% endif %}>
-                {{ option }}
-              </option>
-            {% endfor %}
-          </select>
-
-        {# Text input #}
-        {% elif field == "text" %}
-          <input type="text" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}">
-
-        {# Email input #}
-        {% elif field == "email" %}
-          <input type="email" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}">
-
-        {# Date input #}
-        {% elif field == "date" %}
-          <input type="date" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}">
-
-        {# Textarea #}
-        {% elif field == "textarea" %}
-          <textarea name="{{ key }}" rows="4" cols="50">{{ current_data[key] if current_data and key in current_data else '' }}</textarea>
-
-        {# File input #}
-        {% elif field == "file" %}
-          <input type="file" name="{{ key }}">
-          {% if current_data and key in current_data and current_data[key] %}
-            <p>Current file: {{ current_data[key] }}</p>
-          {% endif %}
-
-        {# Auto date #}
-        {% elif field == "auto_date" %}
-          <input type="text" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else current_date }}" readonly>
-
-        {# Checkbox list #}
-        {% elif field is iterable and field is not string %}
-          {% for option in field %}
-            <label>
-              <input type="checkbox" name="{{ key }}" value="{{ option }}"
-                {% if current_data and key in current_data and option in current_data[key] %}checked{% endif %}>
-              {{ option }}
-            </label><br>
-          {% endfor %}
-        {% endif %}
-      </div>
-
-      {% if key == "petition_number" %}
-        <div id="change-fields" style="display: none; margin-bottom: 10px;">
-          <label>From:</label>
-          <input type="text" name="from_value" value="{{ current_data.from_value if current_data and 'from_value' in current_data else '' }}">
-
-          <label>To:</label>
-          <input type="text" name="to_value" value="{{ current_data.to_value if current_data and 'to_value' in current_data else '' }}">
-
-          <label>Additional Details:</label>
-          <textarea name="additional_details" rows="3" cols="50">{{ current_data.additional_details if current_data and 'additional_details' in current_data else '' }}</textarea>
-        </div>
-      {% endif %}
-    {% endif %}
-  {% endfor %}
-
-  <div style="margin-top: 20px;">
-    <button type="submit" name="action" value="draft">Save Draft</button>
-    <button type="submit" name="action" value="submit">Submit</button>
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ form_template.name }}</h1>
+    <p>University of Houston - Office of the Registrar</p>
+    <p style="font-size: 12px; color: #999;">Please fill out all required fields marked with *</p>
   </div>
 
-</form>
+  <div class="info-box">
+    <strong>📝 Note:</strong> Your stored signature will be automatically used when you submit this form. 
+    If you haven't uploaded a signature yet, please <a href="{{ url_for('approvals_bp.signature_upload_get') }}" style="color: #007bff; text-decoration: underline;">upload one here</a>.
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" 
+        action="{{ url_for('approvals_bp.edit_request', request_id=req.id) if current_data else url_for('approvals_bp.submit_request', form_code=form_template.form_code) }}">
+
+    {% set student_fields = ['student_name', 'student_id', 'peoplesoft_id', 'phone_number', 'email', 'mailing_address', 'city', 'state', 'zip'] %}
+    {% set has_student_section = student_fields | select('in', form_template.fields_json.keys()) | list | length > 0 %}
+    
+    {% if has_student_section %}
+    <div class="form-section">
+      <h3>👤 Student Information</h3>
+      {% for key, field in form_template.fields_json.items() %}
+        {% if key in student_fields and key not in ["from_value", "to_value", "additional_details", "signature"] %}
+          <div class="form-group">
+            <label class="required">{{ key.replace('_', ' ').title() }}:</label>
+
+            {# Text input #}
+            {% if field == "text" %}
+              <input type="text" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}" required>
+            {# Email input #}
+            {% elif field == "email" %}
+              <input type="email" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}" required>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Form Details Section #}
+    <div class="form-section">
+      <h3>📋 Form Details</h3>
+      {% for key, field in form_template.fields_json.items() %}
+        {% if key not in student_fields and key not in ["from_value", "to_value", "additional_details", "signature", "explanation_of_request"] %}
+          <div class="form-group">
+            <label {% if key not in ['date'] %}class="required"{% endif %}>{{ key.replace('_', ' ').title() }}:</label>
+            
+            {# Select dropdown #}
+            {% if field is mapping and field.type == "select" %}
+              <select name="{{ key }}" id="{{ key }}" required>
+                <option value="">-- Select an option --</option>
+                {% for option in field.options %}
+                  <option value="{{ option }}" {% if current_data and key in current_data and current_data[key] == option %}selected{% endif %}>
+                    {{ option }}
+                  </option>
+                {% endfor %}
+              </select>
+              {% if key == "petition_reason_number" %}
+                <div class="help-text">Select the reason that best describes your petition</div>
+              {% endif %}
+
+            {# Text input #}
+            {% elif field == "text" %}
+              <input type="text" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}" required>
+
+            {# Date input #}
+            {% elif field == "date" %}
+              <input type="date" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else '' }}">
+
+            {# Auto date #}
+            {% elif field == "auto_date" %}
+              <input type="text" name="{{ key }}" value="{{ current_data[key] if current_data and key in current_data else current_date }}" readonly class="readonly-field">
+              <div class="help-text">This date is automatically filled</div>
+
+            {# Checkbox list #}
+            {% elif field is iterable and field is not string %}
+              <div class="checkbox-group">
+                {% for option in field %}
+                  <label>
+                    <input type="checkbox" name="{{ key }}" value="{{ option }}"
+                      {% if current_data and key in current_data and option in current_data[key] %}checked{% endif %}>
+                    {{ option }}
+                  </label>
+                {% endfor %}
+              </div>
+              <div class="help-text">Select all that apply</div>
+            {% endif %}
+          </div>
+
+          {# Conditional fields for petition changes #}
+          {% if key == "petition_reason_number" %}
+            <div id="change-fields" style="display: none;" class="form-group">
+              <label>Change Details:</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                <div>
+                  <label>From:</label>
+                  <input type="text" name="from_value" value="{{ current_data.from_value if current_data and 'from_value' in current_data else '' }}" placeholder="Current value">
+                </div>
+                <div>
+                  <label>To:</label>
+                  <input type="text" name="to_value" value="{{ current_data.to_value if current_data and 'to_value' in current_data else '' }}" placeholder="New value">
+                </div>
+              </div>
+              <div style="margin-top: 10px;">
+                <label>Additional Details:</label>
+                <textarea name="additional_details" rows="3" placeholder="Provide any additional information about the change">{{ current_data.additional_details if current_data and 'additional_details' in current_data else '' }}</textarea>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {# Explanation Section #}
+    {% if 'explanation_of_request' in form_template.fields_json %}
+    <div class="form-section">
+      <h3>✍️ Explanation of Request</h3>
+      <div class="form-group">
+        <label class="required">Please explain your request in detail:</label>
+        <textarea name="explanation_of_request" rows="6" placeholder="Provide a detailed explanation of why you are submitting this petition. Include any relevant circumstances, dates, or supporting information." required>{{ current_data.explanation_of_request if current_data and 'explanation_of_request' in current_data else '' }}</textarea>
+        <div class="help-text">Be specific and provide as much detail as possible to help reviewers understand your situation</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="button-group">
+      <button type="submit" name="action" value="draft" class="btn btn-secondary">💾 Save Draft</button>
+      <button type="submit" name="action" value="submit" class="btn btn-primary">📤 Submit for Approval</button>
+    </div>
+
+  </form>
+</div>
 
 <script>
-  
-  const petitionSelect = document.getElementById("petition_number");
+  // Handle conditional fields for petition changes
+  const petitionSelect = document.getElementById("petition_reason_number");
   const changeFields = document.getElementById("change-fields");
+  
   if (petitionSelect && changeFields) {
-    petitionSelect.addEventListener("change", function() {
-      const val = this.value || "";
+    function toggleChangeFields() {
+      const val = petitionSelect.value || "";
       if (val.includes("Change") || val.includes("Remove") || val.includes("Add")) {
         changeFields.style.display = "block";
       } else {
         changeFields.style.display = "none";
       }
-    });
-
-    
-    if (petitionSelect.value.includes("Change") || petitionSelect.value.includes("Remove") || petitionSelect.value.includes("Add")) {
-      changeFields.style.display = "block";
     }
+    
+    petitionSelect.addEventListener("change", toggleChangeFields);
+    toggleChangeFields(); // Check on page load
   }
+
+  // Form validation
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    const action = e.submitter.value;
+    if (action === 'submit') {
+      const requiredFields = form.querySelectorAll('[required]');
+      let allFilled = true;
+      
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          allFilled = false;
+          field.style.borderColor = '#c8102e';
+        } else {
+          field.style.borderColor = '#ddd';
+        }
+      });
+      
+      if (!allFilled) {
+        e.preventDefault();
+        alert('Please fill out all required fields marked with *');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  });
 </script>
 {% endblock %}
 

@@ -2,9 +2,47 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-  <h2>Welcome, {{ user.name }}</h2>
-  <p>Email: {{ user.preferred_username }}</p>
-  <!-- <a href="{{ url_for('auth.login') }}">Log in again</a> -->
+<div class="form-container">
+  <div class="form-header">
+    <h1>👤 User Profile</h1>
+    <p>University of Houston - Account Information</p>
+  </div>
+
+  <div class="form-section">
+    <h3>📋 Account Details</h3>
+    <div class="form-group">
+      <label>Full Name:</label>
+      <input type="text" value="{{ user.name }}" readonly class="readonly-field">
+    </div>
+    
+    <div class="form-group">
+      <label>Email Address:</label>
+      <input type="email" value="{{ user.preferred_username }}" readonly class="readonly-field">
+    </div>
+
+    <div class="form-group">
+      <label>Account Status:</label>
+      <input type="text" value="Active" readonly class="readonly-field">
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h3>⚙️ Quick Actions</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+      <a href="{{ url_for('approvals_bp.signature_upload_get') }}" class="btn btn-primary" style="text-align: center; text-decoration: none;">
+        ✍️ Manage Signature
+      </a>
+      <a href="{{ url_for('approvals_bp.list_forms') }}" class="btn btn-secondary" style="text-align: center; text-decoration: none;">
+        📋 View Forms
+      </a>
+      <a href="{{ url_for('approvals_bp.list_my_requests') }}" class="btn btn-secondary" style="text-align: center; text-decoration: none;">
+        📂 My Requests
+      </a>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>ℹ️ Need Help?</strong> Contact the Office of the Registrar for assistance with your account or forms.
+  </div>
 </div>
 {% endblock %}

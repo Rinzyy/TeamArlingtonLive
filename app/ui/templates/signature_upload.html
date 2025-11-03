@@ -3,28 +3,47 @@
 {% block title %}Upload Signature{% endblock %}
 
 {% block content %}
-  <h1>Upload Signature</h1>
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class="flash-messages">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
+<div class="form-container">
+  <div class="form-header">
+    <h1>✍️ Upload Your Signature</h1>
+    <p>University of Houston - Digital Signature Management</p>
+    <p style="font-size: 12px; color: #999;">Your signature will be used on all submitted forms</p>
+  </div>
 
   {% if signature and signature.image_path %}
-    <div class="signature-preview">
-      <p>Current signature:</p>
-      <img src="{{ image_url }}" alt="Signature" style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+    <div class="form-section">
+      <h3>📸 Current Signature</h3>
+      <div style="text-align: center; padding: 20px; background: white; border-radius: 4px;">
+        <img src="{{ image_url }}" alt="Your Signature" style="max-width: 400px; height: auto; border: 2px solid #ddd; border-radius: 4px; padding: 10px;" />
+        <p style="margin-top: 10px; color: #666; font-size: 14px;">Uploaded: {{ signature.uploaded_at.strftime('%B %d, %Y at %I:%M %p') if signature.uploaded_at else 'Unknown' }}</p>
+      </div>
     </div>
   {% endif %}
 
-  <form action="{{ url_for('approvals_bp.signature_upload_post') }}" method="post" enctype="multipart/form-data">
-    <label for="signature">Choose PNG or JPEG (max 2MB)</label><br>
-    <input type="file" id="signature" name="signature" accept="image/png,image/jpeg" required>
-    <button type="submit">Upload</button>
-  </form>
+  <div class="form-section">
+    <h3>{% if signature and signature.image_path %}🔄 Update Signature{% else %}📝 Upload New Signature{% endif %}</h3>
+    
+    <div class="info-box" style="margin-bottom: 20px;">
+      <strong>📋 Requirements:</strong>
+      <ul style="margin: 10px 0 0 20px; color: #666;">
+        <li>File format: PNG or JPEG only</li>
+        <li>Maximum file size: 2MB</li>
+        <li>Clear, legible signature on white/transparent background</li>
+        <li>Recommended: Sign on white paper, take photo, crop tightly</li>
+      </ul>
+    </div>
+
+    <form action="{{ url_for('approvals_bp.signature_upload_post') }}" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="signature" class="required">Choose Signature File:</label>
+        <input type="file" id="signature" name="signature" accept="image/png,image/jpeg" required style="padding: 10px; border: 2px dashed #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; cursor: pointer;">
+        <div class="help-text">Click to browse or drag and drop your signature image</div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">📤 Upload Signature</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

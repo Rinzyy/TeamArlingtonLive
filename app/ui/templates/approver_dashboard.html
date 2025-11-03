@@ -1,23 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Approver Dashboard</h2>
+<div class="form-container">
+  <div class="form-header">
+    <h1>✅ Approver Dashboard</h1>
+    <p>University of Houston - Approval Management</p>
+  </div>
 
-<form method="get" class="mb-3">
-  <label>State:
-    <select name="state">
-      <option value="">(show pending by default)</option>
-      {% for s in ['pending','returned','approved','rejected'] %}
-      <option value="{{ s }}" {{ 'selected' if 
-request.args.get('state')==s else '' }}>{{ s }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>Search: <input type="text" name="q" value="{{ 
-request.args.get('q','') }}"></label>
-  <button type="submit">Filter</button>
-</form>
+  <div class="form-section">
+    <h3>🔍 Filter Requests</h3>
+    <form method="get" style="display: flex; gap: 15px; align-items: end; flex-wrap: wrap;">
+      <div class="form-group" style="margin: 0; flex: 1; min-width: 200px;">
+        <label>State:</label>
+        <select name="state" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+          <option value="">(show pending by default)</option>
+          {% for s in ['pending','returned','approved','rejected'] %}
+          <option value="{{ s }}" {{ 'selected' if request.args.get('state')==s else '' }}>{{ s|upper }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin: 0; flex: 1; min-width: 200px;">
+        <label>Search:</label>
+        <input type="text" name="q" value="{{ request.args.get('q','') }}" placeholder="Student name, form..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin: 0;">🔍 Filter</button>
+    </form>
+  </div>
 
-<table border="1" cellpadding="6" cellspacing="0" width="100%">
+  <div class="form-section">
+    <h3>📋 Pending Requests</h3>
+    <table border="1" cellpadding="12" cellspacing="0" width="100%" style="background: white; border-radius: 4px; overflow: hidden;">
   <thead>
     <tr>
       <th>#</th><th>Student</th><th>Form</th><th>Step</th><th>Req. 
@@ -41,5 +52,7 @@ request_id=r.id) }}">Open ›</a></td>
     {% endfor %}
   </tbody>
 </table>
+  </div>
+</div>
 {% endblock %}
 

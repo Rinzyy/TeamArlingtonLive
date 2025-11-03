@@ -1,14 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Forms{% endblock %}
+{% block title %}Available Forms{% endblock %}
 {% block content %}
-<h2>Available Forms</h2>
-<ul>
-  {% for form in forms %}
-    <li>
-      <a href="{{ url_for('approvals_bp.fill_form', form_code=form.form_code) }}">
-        {{ form.name }}
-      </a>
-    </li>
-  {% endfor %}
-</ul>
+<div class="form-container">
+  <div class="form-header">
+    <h1>📋 Available Forms</h1>
+    <p>University of Houston - Office of the Registrar</p>
+    <p style="font-size: 12px; color: #999;">Select a form to begin your request</p>
+  </div>
+
+  <div class="info-box">
+    <strong>ℹ️ Before You Start:</strong> Make sure you have uploaded your signature. If not, please 
+    <a href="{{ url_for('approvals_bp.signature_upload_get') }}" style="color: #007bff; text-decoration: underline;">upload it here</a> 
+    before submitting any forms.
+  </div>
+
+  <div class="form-section">
+    <h3>📝 Select a Form</h3>
+    
+    {% if forms %}
+      <div style="display: grid; gap: 20px;">
+        {% for form in forms %}
+          <a href="{{ url_for('approvals_bp.fill_form', form_code=form.form_code) }}" 
+             style="text-decoration: none; color: inherit;">
+            <div style="padding: 20px; background: white; border: 2px solid #ddd; border-radius: 8px; 
+                        transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#c8102e'; this.style.boxShadow='0 4px 12px rgba(200,16,46,0.2)'; this.style.transform='translateY(-2px)';"
+                 onmouseout="this.style.borderColor='#ddd'; this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <h4 style="margin: 0 0 8px 0; color: #c8102e; font-size: 18px;">
+                    {% if 'FERPA' in form.name %}🔒{% elif 'Petition' in form.name %}📄{% else %}📋{% endif %}
+                    {{ form.name }}
+                  </h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">
+                    {% if 'FERPA' in form.name %}
+                      Authorization to release educational records under the Family Educational Rights and Privacy Act
+                    {% elif 'Petition' in form.name %}
+                      Request for academic record changes, program modifications, or special circumstances
+                    {% else %}
+                      Click to view and fill out this form
+                    {% endif %}
+                  </p>
+                </div>
+                <div style="font-size: 24px; color: #c8102e;">→</div>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 40px; color: #999;">
+        <p style="font-size: 18px; margin-bottom: 10px;">📭</p>
+        <p>No forms are currently available.</p>
+      </div>
+    {% endif %}
+  </div>
+
+ 
+</div>
 {% endblock %}

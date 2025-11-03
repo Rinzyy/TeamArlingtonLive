@@ -1,98 +1,123 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Request #{{ d.id }} — {{ d.form_name }}</h2>
+<div class="form-container">
+  <div class="form-header">
+    <h1>📄 Request #{{ d.id }}</h1>
+    <p>{{ d.form_name }}</p>
+  </div>
 
-<div>
-  <strong>State:</strong> {{ d.state }}
-  {% if d.current_step.number %}| <strong>Step:</strong> {{ 
-d.current_step.number }}{% endif %}
-  {% if d.current_step.assignee %}| <strong>Assignee:</strong> {{ 
-d.current_step.assignee }}{% endif %}
-</div>
-<div class="muted">Submitted: {{ d.submitted_at }} | Updated: {{ 
-d.updated_at }}</div>
+  <div class="form-section">
+    <h3>📊 Request Status</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+      <div class="form-group" style="margin: 0;">
+        <label>Status:</label>
+        <input type="text" value="{{ d.state }}" readonly class="readonly-field">
+      </div>
+      {% if d.current_step.number %}
+      <div class="form-group" style="margin: 0;">
+        <label>Current Step:</label>
+        <input type="text" value="{{ d.current_step.number }}" readonly class="readonly-field">
+      </div>
+      {% endif %}
+      {% if d.current_step.assignee %}
+      <div class="form-group" style="margin: 0;">
+        <label>Assignee:</label>
+        <input type="text" value="{{ d.current_step.assignee }}" readonly class="readonly-field">
+      </div>
+      {% endif %}
+      <div class="form-group" style="margin: 0;">
+        <label>Submitted:</label>
+        <input type="text" value="{{ d.submitted_at }}" readonly class="readonly-field">
+      </div>
+      <div class="form-group" style="margin: 0;">
+        <label>Last Updated:</label>
+        <input type="text" value="{{ d.updated_at }}" readonly class="readonly-field">
+      </div>
+    </div>
+  </div>
 
 {% if view == 'approver' %}
   {% if has_pending_for_me %}
-  <div style="margin: 16px 0; padding: 12px; border: 1px solid #ddd;">
-    <h4>Actions</h4>
-    <form method="post" action="{{ url_for('approvals_bp.approver_request_approve', request_id=d.id) }}" style="margin-bottom:8px;">
-      <div>
-        <label for="approve-comments">Comments (optional)</label>
-        <textarea id="approve-comments" name="comments" rows="3" style="width:100%"></textarea>
+  <div class="form-section">
+    <h3>⚡ Actions</h3>
+    <form method="post" action="{{ url_for('approvals_bp.approver_request_approve', request_id=d.id) }}" style="margin-bottom:15px;">
+      <div class="form-group">
+        <label for="approve-comments">Comments (optional):</label>
+        <textarea id="approve-comments" name="comments" rows="3" placeholder="Add any comments about this approval..."></textarea>
       </div>
-      <button type="submit">Approve</button>
+      <button type="submit" class="btn btn-primary">✅ Approve</button>
     </form>
     <form method="post" action="{{ url_for('approvals_bp.approver_request_return', request_id=d.id) }}">
-      <div>
-        <label for="return-comments">Comments (optional)</label>
-        <textarea id="return-comments" name="comments" rows="3" style="width:100%"></textarea>
+      <div class="form-group">
+        <label for="return-comments">Comments (optional):</label>
+        <textarea id="return-comments" name="comments" rows="3" placeholder="Explain what needs to be corrected..."></textarea>
       </div>
-      <button type="submit">Return</button>
+      <button type="submit" class="btn btn-secondary">↩️ Return</button>
     </form>
   </div>
-  {% else %}
-  <p class="muted">Approver view</p>
   {% endif %}
 {% else %}
-  <p class="muted">Student view</p>
   {% if d.state == 'RETURNED' %}
-    <p><a href="{{ url_for('approvals_bp.edit_request', request_id=d.id) }}">Resubmit</a></p>
+  <div class="info-box" style="border-left-color: #ffc107; background-color: #fff3cd;">
+    <strong>⚠️ This request has been returned.</strong> Please review the comments and <a href="{{ url_for('approvals_bp.edit_request', request_id=d.id) }}" style="color: #007bff; text-decoration: underline;">resubmit your request</a>.
+  </div>
   {% endif %}
 {% endif %}
 
-<h3>Fields</h3>
-<table border="1" cellpadding="6" cellspacing="0">
-  <tbody>
-    {% for f in d.fields %}
-    <tr><th>{{ f.label }}</th><td>{{ f.value }}</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<h3>History</h3>
-<ol>
-  {% for e in d.history %}
-  <li><strong>{{ e.event }}</strong> — {{ e.at }} <span class="muted">({{ 
-e.by }})</span></li>
-  {% endfor %}
-</ol>
-
-<h3>PDFs</h3>
-{% if d.pdfs|length == 0 %}
-  <p><em>No PDFs generated yet. PDFs are created when approvers sign the request.</em></p>
-{% else %}
-  <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px;">
-    <thead>
-      <tr>
-        <th>Document</th>
-        <th>Status</th>
-        <th>Step</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
+<div class="form-section">
+  <h3>📝 Form Fields</h3>
+  <table border="1" cellpadding="12" cellspacing="0" width="100%" style="background: white; border-radius: 4px; overflow: hidden;">
     <tbody>
-      {% for p in d.pdfs %}
-      <tr>
-        <td><strong>{{ p.name }}</strong></td>
-        <td>{{ p.stateAtGen }}</td>
-        <td>Step {{ p.stepNumber }}</td>
-        <td>
-          <a href="{{ p.url }}" target="_blank" rel="noreferrer" 
-             style="padding: 6px 12px; background-color: #007bff; color: white; 
-                    text-decoration: none; border-radius: 4px; display: inline-block;">
-            📄 View PDF
-          </a>
-          <a href="{{ p.url }}" download="{{ p.name }}"
-             style="padding: 6px 12px; background-color: #28a745; color: white; 
-                    text-decoration: none; border-radius: 4px; display: inline-block; margin-left: 8px;">
-            ⬇️ Download
-          </a>
-        </td>
-      </tr>
+      {% for f in d.fields %}
+      <tr><th style="width: 30%; background: #f9f9f9;">{{ f.label }}</th><td>{{ f.value }}</td></tr>
       {% endfor %}
     </tbody>
   </table>
-{% endif %}
+</div>
+
+<div class="form-section">
+  <h3>📅 History</h3>
+  <ol style="background: white; padding: 20px 20px 20px 40px; border-radius: 4px; margin: 0;">
+    {% for e in d.history %}
+    <li style="margin-bottom: 10px;"><strong>{{ e.event }}</strong> — {{ e.at }} <span style="color: #666;">({{ e.by }})</span></li>
+    {% endfor %}
+  </ol>
+</div>
+
+<div class="form-section">
+  <h3>📄 Generated PDFs</h3>
+  {% if d.pdfs|length == 0 %}
+    <p style="text-align: center; padding: 20px; color: #999; background: white; border-radius: 4px;"><em>No PDFs generated yet. PDFs are created when approvers sign the request.</em></p>
+  {% else %}
+    <table border="1" cellpadding="12" cellspacing="0" width="100%" style="background: white; border-radius: 4px; overflow: hidden;">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Status</th>
+          <th>Step</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in d.pdfs %}
+        <tr>
+          <td><strong>{{ p.name }}</strong></td>
+          <td>{{ p.stateAtGen }}</td>
+          <td>Step {{ p.stepNumber }}</td>
+          <td>
+            <a href="{{ p.url }}" target="_blank" rel="noreferrer" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; margin-right: 8px; text-decoration: none;">
+              📄 View
+            </a>
+            <a href="{{ p.url }}" download="{{ p.name }}" class="btn btn-secondary" style="display: inline-block; padding: 8px 16px; text-decoration: none; background-color: #28a745;">
+              ⬇️ Download
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+</div>
 {% endblock %}
 

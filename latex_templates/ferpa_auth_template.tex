@@ -1,123 +1,82 @@
+% ferpa_authorization_form.tex
 \documentclass[11pt]{article}
-\usepackage[margin=0.75in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{array}
 \usepackage{tabularx}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{fancyhdr}
-\usepackage{xcolor}
-
-% Header and footer
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{2pt}
-\renewcommand{\footrulewidth}{1pt}
-\lhead{\textbf{University of Houston}}
-\rhead{\textbf{FERPA Authorization}}
-\cfoot{\thepage}
+\usepackage{amsmath,amssymb}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\newcommand{\blankline}{\vspace{8pt}\hrule\vspace{4pt}}
+\newcommand{\checkbox}{\(\square\)\ }
+\newcommand{\bigcheckbox}{\(\Box\)}
+\newcommand{\signatureline}{\vspace{10pt}\rule{0.65\textwidth}{0.4pt}}
 
 \begin{document}
-
-% Title Section
 \begin{center}
-    {\LARGE \textbf{FERPA AUTHORIZATION FORM}} \\[0.3cm]
-    {\large Family Educational Rights and Privacy Act} \\[0.2cm]
-    \textit{Authorization to Release Educational Records}
+  {\LARGE \textbf{UNIVERSITY of HOUSTON}}\\[6pt]
+  \textbf{Form No. OGC-SF-2006-02} \\[6pt]
+  \textit{Note: Modification of this Form requires approval of OGC}\\[12pt]
+  {\Large \textbf{AUTHORIZATION TO RELEASE EDUCATIONAL RECORDS}}\\
+  \textbf{Family Educational Rights and Privacy Act of 1974 as Amended (FERPA)}\\[12pt]
 \end{center}
 
-\vspace{0.5cm}
+\noindent I {{STUDENT_NAME}} hereby voluntarily authorize officials in the\\
+\noindent University of Houston - {{CAMPUS}} identified below to disclose personally identifiable information from my educational records. (Please check the box or boxes that apply):\\[8pt]
 
-% Student Information Section
-\noindent\textbf{\large Student Information}
-\vspace{0.2cm}
+\noindent {{AUTHORIZED_OFFICES}}
 
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Student Name:} & {{STUDENT_NAME}} \\
-\hline
-\textbf{PeopleSoft ID:} & {{PEOPLESOFT_ID}} \\
-\hline
-\textbf{Date:} & {{DATE}} \\
-\hline
-\textbf{Campus:} & {{CAMPUS}} \\
-\hline
+\vspace{10pt}
+
+\noindent Specifically, I authorize disclosure of the following information or category of information:\\[6pt]
+
+\noindent {{INFO_TYPES}}
+
+\vspace{12pt}
+
+\noindent This information may be released to: {{RELEASE_TO}} \\[8pt]
+
+\noindent for the purpose of informing: \\[6pt]
+
+\noindent {{PURPOSE_OF_DISCLOSURE}}
+
+\vspace{12pt}
+
+\noindent Please provide a password to obtain information via the phone: {{PHONE_PASSWORD}} \\
+\noindent \textit{(The password should not contain more than ten (10) letters. You must provide the password to the individuals or agencies listed above. The University will not release information to the caller if the caller does not have the password. A new form must be completed to change your password.)}\\[12pt]
+
+\noindent This is to attest that I am the student signing this form. I understand the information may be released orally or in the form of copies of written records, as preferred by the requester. This authorization will remain in effect from the date it is executed until revoked by me, in writing, and delivered to the Department(s) identified above.\\[12pt]
+
+\begin{tabularx}{\textwidth}{X X}
+  \textbf{PeopleSoft I.D. Number:} & \textbf{Date:} \\
+  {{PEOPLESOFT_ID}} & {{DATE}} \\
 \end{tabularx}
 
-\vspace{0.5cm}
+\vspace{12pt}
 
-% Authorization Details
-\noindent\textbf{\large Authorization Details}
-\vspace{0.2cm}
+\noindent \textbf{Student Name [please print]:}\\
+{{STUDENT_NAME}}
 
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Release To:} & {{RELEASE_TO}} \\
-\hline
-\textbf{Phone Password:} & {{PHONE_PASSWORD}} \\
-\hline
-\end{tabularx}
+\vspace{12pt}
 
-\vspace{0.5cm}
+\noindent \textbf{Student Signature:}\\[6pt]
+{{STUDENT_SIGNATURE}}\\[6pt]
+\textbf{Date Submitted:} {{SUBMITTED_DATE}}
 
-% Authorized Offices
-\noindent\textbf{\large Authorized Offices}
-\vspace{0.2cm}
+\vspace{14pt}
 
-\noindent
-{{AUTHORIZED_OFFICES}}
+\section*{Approver Signature}
+\noindent Official approval by authorized university personnel.
 
-\vspace{0.5cm}
-
-% Information Types
-\noindent\textbf{\large Information Types Authorized for Release}
-\vspace{0.2cm}
-
-\noindent
-{{INFO_TYPES}}
-
-\vspace{0.5cm}
-
-% Purpose of Disclosure
-\noindent\textbf{\large Purpose of Disclosure}
-\vspace{0.2cm}
-
-\noindent
-{{PURPOSE_OF_DISCLOSURE}}
-
-\vspace{0.8cm}
-
-% Signature Section
-\noindent\textbf{\large Signatures}
-\vspace{0.3cm}
-
-\noindent
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Student Signature:} & \\
-& {{STUDENT_SIGNATURE}} \\
-& \\
-\hline
-\textbf{Submitted:} & {{SUBMITTED_DATE}} \\
-\hline
-\end{tabularx}
-
-\vspace{0.5cm}
-
-% Approver Signatures
+\vspace{8pt}
 {{APPROVER_SIGNATURES}}
 
-\vspace{1cm}
-
-% Footer Notice
-\noindent
-\fbox{\begin{minipage}{0.95\textwidth}
-\small
-\textbf{Notice:} This authorization is valid until revoked in writing by the student. 
-The student may revoke this authorization at any time by submitting a written request 
-to the Office of the University Registrar.
-\end{minipage}}
+\vfill
+\noindent Please Retain a Copy for your Records\\
+\noindent Document may be Submitted to Registrar's Office\\[6pt]
+\noindent \textbf{FERPA Authorization Form --- OGC-SF-2006-02 \hfill Revised 01.15.2025}\\
+\noindent Page 1 of 1
 
 \end{document}
