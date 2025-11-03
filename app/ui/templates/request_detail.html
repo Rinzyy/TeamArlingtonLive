@@ -59,16 +59,40 @@ e.by }})</span></li>
 </ol>
 
 <h3>PDFs</h3>
-<ul>
-  {% if d.pdfs|length == 0 %}
-    <li><em>No PDFs yet.</em></li>
-  {% endif %}
-  {% for p in d.pdfs %}
-    <li><a href="{{ p.url }}" target="_blank" rel="noreferrer">{{ p.name 
-}}</a>
-        <span class="muted">— {{ p.stateAtGen }} (step {{ p.stepNumber 
-}})</span></li>
-  {% endfor %}
-</ul>
+{% if d.pdfs|length == 0 %}
+  <p><em>No PDFs generated yet. PDFs are created when approvers sign the request.</em></p>
+{% else %}
+  <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px;">
+    <thead>
+      <tr>
+        <th>Document</th>
+        <th>Status</th>
+        <th>Step</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in d.pdfs %}
+      <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td>{{ p.stateAtGen }}</td>
+        <td>Step {{ p.stepNumber }}</td>
+        <td>
+          <a href="{{ p.url }}" target="_blank" rel="noreferrer" 
+             style="padding: 6px 12px; background-color: #007bff; color: white; 
+                    text-decoration: none; border-radius: 4px; display: inline-block;">
+            📄 View PDF
+          </a>
+          <a href="{{ p.url }}" download="{{ p.name }}"
+             style="padding: 6px 12px; background-color: #28a745; color: white; 
+                    text-decoration: none; border-radius: 4px; display: inline-block; margin-left: 8px;">
+            ⬇️ Download
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
 {% endblock %}
 

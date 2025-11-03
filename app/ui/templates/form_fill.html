@@ -5,12 +5,17 @@
 {% block content %}
 <h2>{{ form_template.name }}</h2>
 
+<div style="background-color: #f0f8ff; padding: 10px; margin-bottom: 15px; border-left: 4px solid #007bff;">
+  <strong>Note:</strong> Your stored signature will be used when you submit this form. 
+  If you haven't uploaded a signature yet, please <a href="{{ url_for('approvals_bp.signature_upload_get') }}">upload one here</a>.
+</div>
+
 <form method="POST" enctype="multipart/form-data" 
       action="{{ url_for('approvals_bp.edit_request', request_id=req.id) if current_data else url_for('approvals_bp.submit_request', form_code=form_template.form_code) }}">
 
 
   {% for key, field in form_template.fields_json.items() %}
-    {% if key not in ["from_value", "to_value", "additional_details"] %}
+    {% if key not in ["from_value", "to_value", "additional_details", "signature"] %}
       <div class="form-group" style="margin-bottom: 10px;">
         <label>{{ key.replace('_', ' ').title() }}:</label>
 

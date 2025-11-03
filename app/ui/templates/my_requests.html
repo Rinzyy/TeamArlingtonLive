@@ -9,7 +9,7 @@
       <th>Form</th>
       <th>Status</th>
       <th>Updated</th>
-      <th>Open</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -28,8 +28,11 @@ else '' }}</td>
       <td>
         <a href="{{ url_for('approvals_bp.student_request_detail', 
 request_id=req.id) }}">
-          Open ›
+          View
         </a>
+        {% if req.status in ['draft', 'returned'] %}
+        | <a href="{{ url_for('approvals_bp.edit_request', request_id=req.id) }}">Edit</a>
+        {% endif %}
       </td>
     </tr>
     {% else %}

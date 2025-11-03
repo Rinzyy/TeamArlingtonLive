@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+\lhead{\textbf{University of Houston}}
+\rhead{\textbf{FERPA Authorization}}
+\cfoot{\thepage}
+
+\begin{document}
+
+% Title Section
+\begin{center}
+    {\LARGE \textbf{FERPA AUTHORIZATION FORM}} \\[0.3cm]
+    {\large Family Educational Rights and Privacy Act} \\[0.2cm]
+    \textit{Authorization to Release Educational Records}
+\end{center}
+
+\vspace{0.5cm}
+
+% Student Information Section
+\noindent\textbf{\large Student Information}
+\vspace{0.2cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Student Name:} & {{STUDENT_NAME}} \\
+\hline
+\textbf{PeopleSoft ID:} & {{PEOPLESOFT_ID}} \\
+\hline
+\textbf{Date:} & {{DATE}} \\
+\hline
+\textbf{Campus:} & {{CAMPUS}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Authorization Details
+\noindent\textbf{\large Authorization Details}
+\vspace{0.2cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Release To:} & {{RELEASE_TO}} \\
+\hline
+\textbf{Phone Password:} & {{PHONE_PASSWORD}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Authorized Offices
+\noindent\textbf{\large Authorized Offices}
+\vspace{0.2cm}
+
+\noindent
+{{AUTHORIZED_OFFICES}}
+
+\vspace{0.5cm}
+
+% Information Types
+\noindent\textbf{\large Information Types Authorized for Release}
+\vspace{0.2cm}
+
+\noindent
+{{INFO_TYPES}}
+
+\vspace{0.5cm}
+
+% Purpose of Disclosure
+\noindent\textbf{\large Purpose of Disclosure}
+\vspace{0.2cm}
+
+\noindent
+{{PURPOSE_OF_DISCLOSURE}}
+
+\vspace{0.8cm}
+
+% Signature Section
+\noindent\textbf{\large Signatures}
+\vspace{0.3cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Student Signature:} & \\
+& {{STUDENT_SIGNATURE}} \\
+& \\
+\hline
+\textbf{Submitted:} & {{SUBMITTED_DATE}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Approver Signatures
+{{APPROVER_SIGNATURES}}
+
+\vspace{1cm}
+
+% Footer Notice
+\noindent
+\fbox{\begin{minipage}{0.95\textwidth}
+\small
+\textbf{Notice:} This authorization is valid until revoked in writing by the student. 
+The student may revoke this authorization at any time by submitting a written request 
+to the Office of the University Registrar.
+\end{minipage}}
+
+\end{document}

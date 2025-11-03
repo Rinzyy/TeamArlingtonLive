@@ -101,6 +101,14 @@ def serve_signature(filename):
     return send_from_directory(base_dir, filename)
 
 
+@approvals_bp.get("/generated_pdfs/<path:filename>")
+@require_login
+def serve_pdf(filename):
+    """Serve generated PDF files to authenticated users."""
+    pdf_dir = os.path.abspath(os.path.join(current_app.root_path, os.pardir, "generated_pdfs"))
+    return send_from_directory(pdf_dir, filename, as_attachment=False, mimetype='application/pdf')
+
+
 @approvals_bp.route("/new", methods=["GET", "POST"])
 def new_request():
     templates = FormTemplate.query.all()
@@ -210,6 +218,12 @@ def fill_form(form_code):
             status = "draft"
             message = "Saved as draft!"
         else:
+            # Check if user has uploaded signature before submitting
+            sig = Signature.query.filter_by(user_id=requester_id).first()
+            if not sig or not sig.image_path:
+                flash("Please upload your signature before submitting the form.", "warning")
+                return redirect(url_for("approvals_bp.signature_upload_get"))
+            
             status = "pending"
             message = "Form submitted for approval!"
 
@@ -223,6 +237,22 @@ def fill_form(form_code):
 
         db.session.add(new_request)
         db.session.commit()
+
+        # Create approval step for demo (anyone can approve)
+        if status == "pending":
+            # Get first admin/approver user, or use current user as placeholder
+            approver = User.query.filter(User.role.in_(["admin", "approver"])).first()
+            if not approver:
+                approver = db_user
+            
+            approval_step = ApprovalStep(
+                request_id=new_request.id,
+                approver_id=approver.id,
+                sequence=1,
+                status="pending"
+            )
+            db.session.add(approval_step)
+            db.session.commit()
 
         flash(message, "success")
         return redirect(url_for("approvals_bp.list_my_requests"))
@@ -286,8 +316,28 @@ def edit_request(request_id):
             req.submitted_at = None
             flash("Draft updated!", "success")
         else:
+            # Check if user has uploaded signature before submitting
+            sig = Signature.query.filter_by(user_id=requester_id).first()
+            if not sig or not sig.image_path:
+                flash("Please upload your signature before submitting the form.", "warning")
+                return redirect(url_for("approvals_bp.signature_upload_get"))
+            
             req.status = "pending"
             req.submitted_at = datetime.utcnow()
+            
+            # Create approval step if resubmitting (e.g., after return)
+            if not req.approval_steps:
+                approver = User.query.filter(User.role.in_(["admin", "approver"])).first()
+                if not approver:
+                    approver = db_user
+                approval_step = ApprovalStep(
+                    request_id=req.id,
+                    approver_id=approver.id,
+                    sequence=1,
+                    status="pending"
+                )
+                db.session.add(approval_step)
+            
             flash("Form submitted for approval!", "success")
 
         db.session.commit()
@@ -372,9 +422,10 @@ def _detail_dto(req_obj: Request):
     pdfs = []
     for s in req_obj.approval_steps:
         if s.signed_pdf_path:
+            filename = os.path.basename(s.signed_pdf_path)
             pdfs.append({
-                "name": os.path.basename(s.signed_pdf_path),
-                "url": f"/{s.signed_pdf_path.lstrip('/')}",
+                "name": filename,
+                "url": url_for("approvals_bp.serve_pdf", filename=filename),
                 "stateAtGen": s.status.upper(),
                 "stepNumber": s.sequence
             })
@@ -387,12 +438,16 @@ def _detail_dto(req_obj: Request):
             label = k.replace("_", " ").title()
             fields.append({"label": label, "value": v})
 
+    # Check if requester has signature
+    requester_sig = Signature.query.filter_by(user_id=req_obj.requester_id).first() if req_obj.requester_id else None
+    
     return {
         "id": req_obj.id,
         "form_name": req_obj.form_template.name if req_obj.form_template else "—",
         "student": {
             "name": req_obj.requester.name if req_obj.requester else "—",
             "email": req_obj.requester.email if req_obj.requester else "—",
+            "has_signature": bool(requester_sig and requester_sig.image_path)
         },
         "state": req_obj.status.upper(),
         "current_step": {
@@ -411,39 +466,35 @@ def _detail_dto(req_obj: Request):
 @approvals_bp.get("/approver/dashboard")
 @require_login
 def approver_dashboard():
+    """Demo-friendly approver dashboard - shows ALL pending requests for anyone to approve."""
     me = current_db_user()
     if not me:
         flash("You must be logged in.", "warning")
         return redirect(url_for("auth.login"))
 
-    state = (request.args.get("state") or "").lower()  # default empty shows pending by step
+    state = (request.args.get("state") or "").lower()
     q = (request.args.get("q") or "").strip().lower()
 
-    steps_q = (ApprovalStep.query
-               .filter(ApprovalStep.approver_id == me.id)
-               .join(Request, ApprovalStep.request_id == Request.id)
-               .options(joinedload(ApprovalStep.request)
-                        .joinedload(Request.form_template),
-                        joinedload(ApprovalStep.request)
-                        .joinedload(Request.requester))
-               .order_by(Request.updated_at.desc()))
+    # For DEMO: Show ALL pending requests, not just assigned to current user
+    requests_query = (Request.query
+                      .filter(Request.status == "pending")
+                      .options(joinedload(Request.form_template),
+                               joinedload(Request.requester),
+                               joinedload(Request.approval_steps))
+                      .order_by(Request.updated_at.desc()))
 
-    # default: show pending step assignments; if state filter given (approved/rejected/returned),
-    # apply to the Request.status instead
     rows = []
-    for s in steps_q.limit(200).all():
-        req = s.request
-        if state:
-            if req.status != state:
-                continue
-        else:
-            if s.status != "pending":
-                continue
+    for req in requests_query.limit(200).all():
+        # Get the first pending step
+        pending_step = next((s for s in req.approval_steps if s.status == "pending"), None)
+        if not pending_step:
+            continue
+            
         if q and (q not in str(req.id).lower()
                   and q not in (req.requester.name or "").lower()
                   and q not in (req.form_template.name or "").lower()):
             continue
-        rows.append(_dto_row_for_approver(req, s))
+        rows.append(_dto_row_for_approver(req, pending_step))
 
     return render_template("approver_dashboard.html", requests=rows)
 
@@ -466,11 +517,8 @@ joinedload(Request.approval_steps).joinedload(ApprovalStep.approver))
         flash("Request not found.", "warning")
         return redirect(url_for("approvals_bp.approver_dashboard"))
 
-    # must be assigned approver or admin
-    assigned = any(s.approver_id == me.id for s in req_obj.approval_steps)
-    if not assigned and me.role != "admin":
-        flash("You are not authorized to view this request.", "warning")
-        return redirect(url_for("approvals_bp.approver_dashboard"))
+    # For DEMO: Allow anyone to view (remove authorization check)
+    # In production, you'd check: assigned = any(s.approver_id == me.id for s in req_obj.approval_steps)
 
     d = _detail_dto(req_obj)
     # determine if current user has a pending step
@@ -495,11 +543,15 @@ def approver_request_approve(request_id: int):
         flash("Request not found.", "warning")
         return redirect(url_for("approvals_bp.approver_dashboard"))
 
-    # current pending step for this approver
-    step = next((s for s in req_obj.approval_steps if s.approver_id == me.id and s.status == "pending"), None)
+    # For DEMO: Get any pending step and assign to current user
+    step = next((s for s in req_obj.approval_steps if s.status == "pending"), None)
     if not step:
-        flash("No pending step for you", "warning")
+        flash("No pending step", "warning")
         return redirect(url_for("approvals_bp.approver_dashboard"))
+    
+    # Assign this step to current approver if not already assigned
+    if step.approver_id != me.id:
+        step.approver_id = me.id
 
     # ensure signature exists
     sig = Signature.query.filter_by(user_id=me.id).first()
@@ -507,19 +559,32 @@ def approver_request_approve(request_id: int):
         flash("Please upload a signature first", "warning")
         return redirect(url_for("approvals_bp.signature_upload_get"))
 
-    # Collect signature paths: all previously approved steps + current approver, in sequence order
+    # Collect signature paths: student signature first, then approvers
     signature_paths = []
+    
+    # Add student/requester signature first
+    student_sig = Signature.query.filter_by(user_id=req_obj.requester_id).first()
+    if student_sig and student_sig.image_path:
+        signature_paths.append(student_sig.image_path)
+    
+    # Add approver signatures in sequence order
     for s in sorted(req_obj.approval_steps, key=lambda x: x.sequence):
         if s.status == "approved" or s.id == step.id:
-            other_sig = Signature.query.filter_by(user_id=s.approver_id).first()
-            if other_sig and other_sig.image_path:
-                signature_paths.append(other_sig.image_path)
+            approver_sig = Signature.query.filter_by(user_id=s.approver_id).first()
+            if approver_sig and approver_sig.image_path:
+                signature_paths.append(approver_sig.image_path)
 
     # Generate PDF and store relative path
     try:
+        print(f"DEBUG: Generating PDF for request {req_obj.id}")
+        print(f"DEBUG: Signature paths: {signature_paths}")
         pdf_rel_path = generate_request_pdf(req_obj, signature_paths)
+        print(f"DEBUG: PDF generated at: {pdf_rel_path}")
         step.signed_pdf_path = pdf_rel_path
     except Exception as e:
+        print(f"ERROR: PDF generation failed: {e}")
+        import traceback
+        traceback.print_exc()
         flash(f"Failed to generate PDF: {e}", "danger")
         return redirect(url_for("approvals_bp.approver_request_detail", request_id=req_obj.id))
 
@@ -556,11 +621,15 @@ def approver_request_return(request_id: int):
         flash("Request not found.", "warning")
         return redirect(url_for("approvals_bp.approver_dashboard"))
 
-    # current pending step for this approver
-    step = next((s for s in req_obj.approval_steps if s.approver_id == me.id and s.status == "pending"), None)
+    # For DEMO: Get any pending step
+    step = next((s for s in req_obj.approval_steps if s.status == "pending"), None)
     if not step:
         flash("No pending step", "warning")
         return redirect(url_for("approvals_bp.approver_dashboard"))
+    
+    # Assign to current user if needed
+    if step.approver_id != me.id:
+        step.approver_id = me.id
 
     # Update current step
     step.status = "returned"

@@ -12,8 +12,7 @@ FORM_TEMPLATES = [
             "info_types": ["Academic Records", "Academic Advising Profile/Information", "All University Records", "Grades/Transcripts", "Billing/Financial Aid", "Disciplinary", "Housing", "Photos", "Scholarship/Honors", "Other"],
             "release_to": "text",
             "purpose_of_disclosure": ["Family", "Educational Institution", "Employer", "Public or Media of Scholarship", "Other"],
-            "phone_password": "text",
-            "signature": "file"
+            "phone_password": "text"
         }
     },
     {
@@ -57,7 +56,6 @@ FORM_TEMPLATES = [
         "to_value": "text",
         "additional_details": "textarea",
         "explanation_of_request": "textarea",
-        "signature": "file",
         "date": "auto_date"
     }
 }

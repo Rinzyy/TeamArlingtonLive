@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+\lhead{\textbf{University of Houston}}
+\rhead{\textbf{General Petition}}
+\cfoot{\thepage}
+
+\begin{document}
+
+% Title Section
+\begin{center}
+    {\LARGE \textbf{GENERAL PETITION FORM}} \\[0.3cm]
+    {\large Office of the University Registrar} \\[0.2cm]
+    \textit{Student Academic Petition}
+\end{center}
+
+\vspace{0.5cm}
+
+% Student Information Section
+\noindent\textbf{\large Student Information}
+\vspace{0.2cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Student Name:} & {{STUDENT_NAME}} \\
+\hline
+\textbf{Student ID:} & {{STUDENT_ID}} \\
+\hline
+\textbf{Phone Number:} & {{PHONE_NUMBER}} \\
+\hline
+\textbf{Email:} & {{EMAIL}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.3cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Mailing Address:} & {{MAILING_ADDRESS}} \\
+\hline
+\textbf{City:} & {{CITY}} \\
+\hline
+\textbf{State:} & {{STATE}} \\
+\hline
+\textbf{ZIP Code:} & {{ZIP}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Petition Details
+\noindent\textbf{\large Petition Details}
+\vspace{0.2cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Petition Reason:} & {{PETITION_REASON_NUMBER}} \\
+\hline
+\textbf{Date:} & {{DATE}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Change Details (if applicable)
+{{CHANGE_DETAILS}}
+
+\vspace{0.5cm}
+
+% Explanation Section
+\noindent\textbf{\large Explanation of Request}
+\vspace{0.2cm}
+
+\noindent
+\fbox{\begin{minipage}{0.95\textwidth}
+{{EXPLANATION_OF_REQUEST}}
+\end{minipage}}
+
+\vspace{0.8cm}
+
+% Signature Section
+\noindent\textbf{\large Student Signature}
+\vspace{0.3cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Signature:} & \\
+& {{STUDENT_SIGNATURE}} \\
+& \\
+\hline
+\textbf{Date Submitted:} & {{SUBMITTED_DATE}} \\
+\hline
+\end{tabularx}
+
+\vspace{0.5cm}
+
+% Approval Section
+\noindent\textbf{\large Approval Chain}
+\vspace{0.3cm}
+
+{{APPROVER_SIGNATURES}}
+
+\vspace{1cm}
+
+% Footer Notice
+\noindent
+\fbox{\begin{minipage}{0.95\textwidth}
+\small
+\textbf{For Office Use Only:} \\
+This petition has been reviewed and processed according to University policies and procedures. 
+All changes will be reflected in the student's academic record upon final approval.
+\end{minipage}}
+
+\end{document}

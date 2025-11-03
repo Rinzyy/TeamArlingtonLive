@@ -59,3 +59,22 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated PDFs and LaTeX artifacts
+generated_pdfs/
+latex_templates/*.pdf
+latex_templates/*.tex
+latex_templates/*.aux
+latex_templates/*.log
+latex_templates/*.out
+latex_templates/build.log
+latex_templates/Makefile
+
+# Keep template files
+!latex_templates/*_template.tex
+!latex_templates/README.md
+
+# Uploaded signatures
+uploads/signatures/*.jpg
+uploads/signatures/*.jpeg
+uploads/signatures/*.png
