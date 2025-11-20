@@ -1,7 +1,7 @@
 # app/approvals/routes.py
 import os
 from datetime import datetime
-from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session )
+from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session, jsonify )
 from werkzeug.utils import secure_filename
 from app.models import db, User, Signature, Request, FormTemplate, ApprovalStep
 from app.utils.pdf_generator import generate_request_pdf
@@ -677,4 +677,22 @@ joinedload(Request.approval_steps).joinedload(ApprovalStep.approver))
 
     d = _detail_dto(req_obj)
     return render_template("request_detail.html", d=d, view="student")
+
+# For implementation
+
+@approvals_bp.get("/get-forms")
+def get_forms():
+    forms = FormTemplate.query.all()
+    result = []
+
+    for form in forms:
+        info = {
+            "name": form.name,
+            "form_code": form.form_code,
+            # change url when hosted
+            "link": f"https://our-future-hosted-domain.com/approvals/forms/{form.form_code}"
+        }
+        result.append(info)
+    
+    return jsonify(result)
 
