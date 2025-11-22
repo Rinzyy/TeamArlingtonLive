@@ -690,7 +690,7 @@ def get_forms():
             "name": form.name,
             "form_code": form.form_code,
             # change url when hosted
-            "link": f"https://our-future-hosted-domain.com/approvals/forms/{form.form_code}"
+            "link": f"https://arlington.rindeer.com/approvals/forms/{form.form_code}"
         }
         result.append(info)
     
