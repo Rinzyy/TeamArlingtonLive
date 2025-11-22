@@ -6,8 +6,7 @@ from werkzeug.utils import secure_filename
 from app.models import db, User, Signature, Request, FormTemplate, ApprovalStep
 from app.utils.pdf_generator import generate_request_pdf
 from app.users.routes import require_login, current_db_user
-from datetime import datetime
-import json
+import requests
 
 approvals_bp = Blueprint("approvals_bp", __name__)
 
@@ -104,7 +103,6 @@ def serve_signature(filename):
 @approvals_bp.get("/generated_pdfs/<path:filename>")
 @require_login
 def serve_pdf(filename):
-    """Serve generated PDF files to authenticated users."""
     pdf_dir = os.path.abspath(os.path.join(current_app.root_path, os.pardir, "generated_pdfs"))
     return send_from_directory(pdf_dir, filename, as_attachment=False, mimetype='application/pdf')
 
@@ -151,9 +149,6 @@ def submit_request(form_code):
         )
         db.session.add(user)
         db.session.commit()
-
-
-
     
     form_data = {}
     for key in request.form:
@@ -178,11 +173,21 @@ def submit_request(form_code):
 @approvals_bp.route("/forms")
 def list_forms():
     forms = FormTemplate.query.all()
-    return render_template("forms_list.html", forms=forms)
+    external_forms = fetch_external_forms()
+    return render_template("forms_list.html", forms=forms, external_forms=external_forms)
+
+def fetch_external_forms():
+    api_url = "https://arlington.rindeer.com/approvals/get-forms"
+
+    resp = requests.get(api_url, timeout=5)
+    data = resp.json()
+
+    if isinstance(data, list):
+        return data
+    return []
 
 @approvals_bp.route("/forms/<form_code>", methods=["GET", "POST"])
 def fill_form(form_code):
-    """Display and handle form creation."""
     form_template = FormTemplate.query.filter_by(form_code=form_code).first_or_404()
 
     user = session.get("user")
@@ -267,7 +272,6 @@ def fill_form(form_code):
 
 @approvals_bp.route("/request/<int:request_id>/edit", methods=["GET", "POST"])
 def edit_request(request_id):
-    """Edit a draft request using the same fill form template."""
     req = Request.query.get_or_404(request_id)
 
     user = session.get("user")
@@ -386,15 +390,6 @@ def _dto_row_for_approver(req_obj: Request, step: ApprovalStep):
         "updated_at": req_obj.updated_at.strftime("%Y-%m-%d %H:%M") if req_obj.updated_at else ""
     }
 
-def _dto_row_for_student(req_obj: Request, current_step: ApprovalStep | None):
-    return {
-        "id": req_obj.id,
-        "form_name": req_obj.form_template.name if req_obj.form_template else "—",
-        "state": req_obj.status.upper(),
-        "step_number": current_step.sequence if current_step else None,
-        "step_status": current_step.status.upper() if current_step else None,
-        "updated_at": req_obj.updated_at.strftime("%Y-%m-%d %H:%M") if req_obj.updated_at else ""
-    }
 
 def _detail_dto(req_obj: Request):
     # current step = first 'pending' else last step
@@ -466,7 +461,6 @@ def _detail_dto(req_obj: Request):
 @approvals_bp.get("/approver/dashboard")
 @require_login
 def approver_dashboard():
-    """Demo-friendly approver dashboard - shows ALL pending requests for anyone to approve."""
     me = current_db_user()
     if not me:
         flash("You must be logged in.", "warning")
@@ -575,18 +569,8 @@ def approver_request_approve(request_id: int):
                 signature_paths.append(approver_sig.image_path)
 
     # Generate PDF and store relative path
-    try:
-        print(f"DEBUG: Generating PDF for request {req_obj.id}")
-        print(f"DEBUG: Signature paths: {signature_paths}")
-        pdf_rel_path = generate_request_pdf(req_obj, signature_paths)
-        print(f"DEBUG: PDF generated at: {pdf_rel_path}")
-        step.signed_pdf_path = pdf_rel_path
-    except Exception as e:
-        print(f"ERROR: PDF generation failed: {e}")
-        import traceback
-        traceback.print_exc()
-        flash(f"Failed to generate PDF: {e}", "danger")
-        return redirect(url_for("approvals_bp.approver_request_detail", request_id=req_obj.id))
+    pdf_rel_path = generate_request_pdf(req_obj, signature_paths)
+    step.signed_pdf_path = pdf_rel_path
 
     # Update step
     step.status = "approved"
