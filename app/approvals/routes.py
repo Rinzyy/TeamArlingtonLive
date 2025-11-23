@@ -1,13 +1,15 @@
 # app/approvals/routes.py
 import os
 from datetime import datetime
-from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session )
+from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session, jsonify)
 from werkzeug.utils import secure_filename
 from app.models import db, User, Signature, Request, FormTemplate, ApprovalStep
 from app.utils.pdf_generator import generate_request_pdf
 from app.users.routes import require_login, current_db_user
 from datetime import datetime
 import json
+import requests
+
 
 approvals_bp = Blueprint("approvals_bp", __name__)
 
@@ -178,8 +180,18 @@ def submit_request(form_code):
 @approvals_bp.route("/forms")
 def list_forms():
     forms = FormTemplate.query.all()
-    return render_template("forms_list.html", forms=forms)
+    external_forms = fetch_external_forms()
+    return render_template("forms_list.html", forms=forms, external_forms=external_forms)
 
+def fetch_external_forms():
+    api_url = "https://aurora.jguliz.com/approvals/get-forms"
+
+    resp = requests.get(api_url, timeout=5)
+    data = resp.json()
+
+    if isinstance(data, list):
+        return data
+    return []
 @approvals_bp.route("/forms/<form_code>", methods=["GET", "POST"])
 def fill_form(form_code):
     """Display and handle form creation."""

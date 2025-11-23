@@ -14,8 +14,9 @@
     before submitting any forms.
   </div>
 
+  <!-- OUR FORMS -->
   <div class="form-section">
-    <h3>📝 Select a Form</h3>
+    <h3>📝 Select a Form (Arlington System)</h3>
     
     {% if forms %}
       <div style="display: grid; gap: 20px;">
@@ -51,11 +52,46 @@
     {% else %}
       <div style="text-align: center; padding: 40px; color: #999;">
         <p style="font-size: 18px; margin-bottom: 10px;">📭</p>
-        <p>No forms are currently available.</p>
+        <p>No forms are currently available in this system.</p>
       </div>
     {% endif %}
   </div>
 
- 
+  <!-- EXTERNAL (AURORA) FORMS -->
+  {% if external_forms %}
+    <div class="form-section" style="margin-top: 40px;">
+      <h3>Select a Form (Aurora System)</h3>
+      <p style="font-size: 12px; color: #999; margin-bottom: 15px;">
+        These forms are hosted on another team’s server. When you click a form below, you will be redirected
+        to their system to complete and submit it.
+      </p>
+
+      <div style="display: grid; gap: 20px;">
+        {% for form in external_forms %}
+          <a href="{{ form.link }}" target="_blank" rel="noopener" 
+             style="text-decoration: none; color: inherit;">
+            <div style="padding: 20px; background: white; border: 2px solid #ddd; border-radius: 8px; 
+                        transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#007bff'; this.style.boxShadow='0 4px 12px rgba(0,123,255,0.2)'; this.style.transform='translateY(-2px)';"
+                 onmouseout="this.style.borderColor='#ddd'; this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <h4 style="margin: 0 0 8px 0; color: #007bff; font-size: 18px;">
+                    🌐 {{ form.name }}
+                  </h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">
+                    This form will open in the Aurora approval system in a new tab.
+                  </p>
+                </div>
+                <div style="font-size: 24px; color: #007bff;">↗</div>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
 </div>
 {% endblock %}
+
