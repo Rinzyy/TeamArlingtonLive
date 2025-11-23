@@ -1,12 +1,15 @@
 # app/approvals/routes.py
 import os
 from datetime import datetime
-from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session, jsonify )
+from flask import (Blueprint, render_template, request, redirect, url_for, flash, current_app, send_from_directory, session, jsonify)
 from werkzeug.utils import secure_filename
 from app.models import db, User, Signature, Request, FormTemplate, ApprovalStep
 from app.utils.pdf_generator import generate_request_pdf
 from app.users.routes import require_login, current_db_user
+from datetime import datetime
+import json
 import requests
+
 
 approvals_bp = Blueprint("approvals_bp", __name__)
 
@@ -177,7 +180,8 @@ def list_forms():
     return render_template("forms_list.html", forms=forms, external_forms=external_forms)
 
 def fetch_external_forms():
-    api_url = "https://arlington.rindeer.com/approvals/get-forms"
+
+    api_url = "https://aurora.jguliz.com/approvals/get-forms"
 
     resp = requests.get(api_url, timeout=5)
     data = resp.json()
@@ -185,7 +189,6 @@ def fetch_external_forms():
     if isinstance(data, list):
         return data
     return []
-
 @approvals_bp.route("/forms/<form_code>", methods=["GET", "POST"])
 def fill_form(form_code):
     form_template = FormTemplate.query.filter_by(form_code=form_code).first_or_404()
