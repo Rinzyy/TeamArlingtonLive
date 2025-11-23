@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import os
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 from app.auth.routes import auth_bp
 from app.users.routes import users_bp
 from app.approvals.routes import approvals_bp
@@ -30,9 +31,13 @@ def create_app():
                 template_folder='ui/templates',
                 static_folder='ui/css')
 
+    # Ensure Flask respects X-Forwarded-* headers from reverse proxy
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
     #Secret key and server config
-    #app.config["SERVER_NAME"] = "localhost:5000"
     app.secret_key = os.getenv("FLASK_SECRET_KEY")
+    # Prefer https when building external URLs
+    app.config["PREFERRED_URL_SCHEME"] = "https"
 
     #Add database config (new lines)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
